@@ -2,12 +2,13 @@
 # ^Shebang line. It TODO EXPLAIN
 
 # Globals, defined outside the scope of a function
-# Turn this on if you want a lot of echo's
+# Turn this on if you want a lot of echo's TODO: Better explanaiton
 VERBOSE=false
 
 # Still globals, but less important
 readonly DASH="-------"
-readonly MAIN_OPT= "[main] Main menu"
+readonly MAIN_OPT="[main] Main menu"
+readonly QUIT_OPT="[q] Quit"
 readonly RED="\e[31m"
 readonly GREEN="\e[32m"
 readonly YELLOW="\e[33m"
@@ -35,24 +36,44 @@ run()
     list_choices_and_execute_for "main"
 }
 
+
+test_cyanize()
+{
+    test_cyan_string="" #User input. A string to make cyan
+    echo -e "Enter a string. It will become a ${CYAN}cyan-colored string${DONE}\n"
+    read test_cyan_string
+    echo -e "\nCyanized string = "$(cyanize "${test_cyan_string}")
+}
+
+cyanize()
+{
+    STRING_TO_CYANIZE=$1
+    echo "${CYAN}${STRING_TO_CYANIZE}${DONE}"
+}
+
 set_verbose()
 {
-    #TODO: Better echo's
-    echo -e "VERBOSE is currently set to ${VERBOSE}"
-    echo -e "If VERBOSE is set to on, you will see extra messages " $(verbose_echo "formatted like this") "to assist in debugging."
-    [[ $VERBOSE = true ]] && CHG="Keep" || CHG="Turn"
-    echo "${CHG} VERBOSE on? y for yes" 
+    #TODO: Explain method
+    #TODO: V is false 
+    #TODO: Better echo's, cyanify/highlight crap
+    echo -e "\n VERBOSE is currently set to ${VERBOSE}"
+    echo -e "If VERBOSE is set to on, you will see extra messages ${VERBOSE_FORMAT}formatted like this${DONE} to assist in debugging."
+    #TODO: Explain shorthand
+    [[ $VERBOSE = true ]] && verb="Keep" || verb="Turn"
+    echo "${verb} VERBOSE on? Type y for yes" 
     read CHOICE
     if [ $CHOICE = "y" ]
     then
         VERBOSE=true
     fi
+    echo "VERBOSE is now set to ${VERBOSE}"
     continue_or_quit "main"
 }
 
 verbose_echo()
 {
-    V_STRING=$1
+    #If VERBOSE global is on (true), then echo
+    V_STRING=$1 #String
     if $VERBOSE; then
         echo "${VERBOSE_FORMAT}${V_STRING}${DONE}"
     fi
@@ -60,32 +81,46 @@ verbose_echo()
 
 list_choices_and_execute_for()
 {
-    SET=$1
+    set=$1
     user_choice="" #user input
-    list_choices $SET
-    read USER_CHOICE
-    execute_based_on_choice $USER_CHOICE "main"
+    list_choices $set
+    read user_choice
+    execute_based_on_choice $user_choice $set
 }
 
 list_choices()
 {
-    SET=$1
-    case $SET in
+    #This only lists strings
+    set=$1
+    case $set in
         main)
+            echo -e "${DASH}Main Menu${DASH}\n"
             echo -e "Please make a selection \n"
             echo "[1] CODEOWNERS Testing Suite"
-            echo "[2] TBD"
-            echo "[3] Verbose ON/OFF"
+            echo "[2] Github Testing Suite"
+            echo "[3] Debug Menu"
             echo -e "[q] Quit \n"
             ;;
         CODEOWNERS)
             echo -e "\n${DASH}CODEOWNERS Testing Suite${DASH}\n"
             echo "[1] Read through CODEOWNERS (no comments)"
             echo "[2] TBD"
-            echo -e "[3] TBD \n"
+            echo "[3] TBD"
+            echo -e "${MAIN_OPT} \n"
+            ;;
+        github)
+            echo -e "\n${DASH}Github Testing Suite${DASH}\n"
+            echo "[1] Github TBD"
+            echo "[2] Github TBD"
+            echo "[3] Github TBD"
+            echo -e "${MAIN_OPT} \n"
             ;;
         debug)
-            echo "TBD"
+            echo -e "\n${DASH}Debug Menu (Debug Mode)${DASH}\n"
+            echo -e "[1] Test" $(cyanize "cyanize()")
+            echo -e "[2] Verbose ON/OFF" #Probs becomes a debug menu option
+            echo -e "${MAIN_OPT} \n"
+            # echo -e "Other debug menu options TBD \n"
             ;;
         *)
             echo "Invalid selection"
@@ -104,10 +139,10 @@ execute_based_on_choice()
                     list_choices_and_execute_for "CODEOWNERS"
                     ;;
                 2)
-                    echo "TBD"
+                    list_choices_and_execute_for "github"
                     ;;
                 3)
-                    set_verbose
+                    list_choices_and_execute_for "debug"
                     ;;
                 *)
                     echo "OK"
@@ -115,7 +150,7 @@ execute_based_on_choice()
             esac
             ;;
         CODEOWNERS)
-            echo "execute_based_on_choice(): CODEOWNERS hit! CHOICE = ${CHOICE}"
+            verbose_echo "execute_based_on_choice(): CODEOWNERS hit! CHOICE = ${CHOICE}"
             case $CHOICE in
                 1)
                     echo "OMG"
@@ -124,6 +159,37 @@ execute_based_on_choice()
                     echo "YAY"
                     ;;
             esac
+            ;;
+        
+    github)
+            verbose_echo "execute_based_on_choice(): github hit! CHOICE = ${CHOICE}"
+            case $CHOICE in
+                1)
+                    echo "github choice 1"
+                    ;;
+                *)
+                    echo "github choice 2"
+                    ;;
+            esac
+            ;;
+    debug)
+            verbose_echo -e "\nexecute_based_on_choice(): debug hit! CHOICE = ${CHOICE}"
+            case $CHOICE in
+                1)
+                    test_cyanize
+                    ;;
+                2)
+                    set_verbose
+                    ;;
+                q)
+                    echo "Qutting. Hope you liked Debug Mode!"
+                    ;;
+                *)
+                    echo "Invalid debug menu option. Quitting for now"
+                    exit
+                    ;;
+            esac
+            continue_or_quit "debug"
             ;;
         *)
             verbose_echo "execute_based_on_choice: Invalid TYPE"
@@ -134,20 +200,20 @@ execute_based_on_choice()
 continue_or_quit()
 {
     menu_type=$1
-    echo "To return to the main menu, type 1 or main. To quit, press q or any other key"
+    debug_return_msg=""
+    #TODO EXPLAIN shorthand
+    [[ $menu_type = "debug" ]] && debug_return_msg="To return to the debug menu, type 1." || :
+    echo -e "\nTo return to the main menu, type main. ${debug_return_msg} To quit, press q or any other key \n"
     read decision
-    if [ $menu_type = "main" ]
-    then 
-        if [ $decision = "main" ]
-        then
-            echo "MAIN"
-            run
-        else
-            echo "Quitting. Bye!"
-            exit
-        fi
+    if [ $decision = "main" ]
+    then
+        run
+    elif [ $menu_type = "debug" ]
+    then
+        list_choices_and_execute_for "debug"
     else
-        echo "continue_or_quit(): Invalid menu_type ($menu_type)"
+        echo "Quitting. Bye!"
+        exit
     fi
 }
 
