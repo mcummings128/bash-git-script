@@ -1,0 +1,2 @@
+#Dummy file for now. This is just a .txt to have in case there's actual any info about this folder.
+# All the images folder should do is hold images. It should be owned by Toad's team (team-mushroom-kingdom-toad) for CODEOWNERS purposes
