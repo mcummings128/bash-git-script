@@ -6,4 +6,9 @@
 # /shell-scripts/*.sh @team-mushroom-kingdom-mario
 
 # Anything in images AT ALL is owned by Toad's team
-/images @team-mushroom-kingdom-toad
+# /images @org-mushroom-kingdom/team-peach
+
+# Anything in TBD is owned by Peach
+
+# The README is also owned by Peach
+/README.md @org-mushroom-kingdom/team-peach
