@@ -2,5 +2,8 @@
 
 # Format: /path/to/file @username @org/team
 
-#Anything in shell-scripts/ that is a *.sh file is owned by TBD
-# /shell-scripts/*.sh @username
+# Anything in shell-scripts/ that is a *.sh file is owned by Mario's team
+# /shell-scripts/*.sh @team-mushroom-kingdom-mario
+
+# Anything in images AT ALL is owned by Toad's team
+/images @team-mushroom-kingdom-toad
